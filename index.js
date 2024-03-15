@@ -15,10 +15,6 @@ app.use(cors({
   }
 ));
 connectDB()
-app.get('/', async(req, res) => {
-  const data =await Emp.find()
-  res.json(data)
-})
 app.post('/', async(req, res) => {
   try {
     let a = req.body;
@@ -27,14 +23,12 @@ app.post('/', async(req, res) => {
       res.json({message:`You have already submitted for ${a.date}`})
     }
     else{
-
       let date = a.date.split("-")
       let formDate = new Date(date[0], date[1] - 1, date[2])
     var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var time1 = new Date(formDate.toDateString() + " " + a.time_in)
     var time2 = new Date(formDate.toDateString() + " " + a.time_out)
     let timeDiff = time2 - time1
-    console.log(timeDiff)
     const data = new Emp({
       id:a.id,
       date: a.date,
@@ -60,17 +54,11 @@ app.get('/employees', async(req, res) => {
 app.post('/login', async(req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find the user by email in the database
     const user = await EmpData.findOne({ email });
-    // If the user is not found, return an error
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    // Compare the provided password with the hashed password in the database
     const passwordMatch = await bcrypt.compare(password, user.password);
-    console.log(passwordMatch)
-    // If passwords match, authentication is successful
     if (passwordMatch) {
       return res.json({ data:user });
     } else {
@@ -87,14 +75,10 @@ app.post('/login', async(req, res) => {
 app.get('/attendance/:id/:fromDate/:toDate', async (req, res) => {
   try {
     const { id, fromDate, toDate } = req.params;
-
-    // Find documents in Emp collection based on id and date range
     const data = await Emp.find({
       id: id,
       date: { $gte: fromDate, $lte: toDate }
     });
-
-    console.log(data);
     res.json(data);
   } catch (error) {
     console.error('Error fetching attendance data:', error);
@@ -104,7 +88,7 @@ app.get('/attendance/:id/:fromDate/:toDate', async (req, res) => {
 
 
 
-app.post('/addEmployee', async(req, res) => {
+app.post('/employee', async(req, res) => {
   try {
     const { name, email, password, isAdmin } = req.body;
     const user = await EmpData.find({ email });
