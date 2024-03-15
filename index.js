@@ -15,7 +15,6 @@ app.use(cors({
   }
 ));
 connectDB()
-// await mongoose.connect(process.env.MONGODB_CONNECT_URI)
 app.get('/', async(req, res) => {
   const data =await Emp.find()
   res.json(data)
@@ -110,7 +109,7 @@ app.post('/addEmployee', async(req, res) => {
     const { name, email, password, isAdmin } = req.body;
     const user = await EmpData.find({ email });
     if (user.length > 0) {
-      return res.status(404).json({ message: 'User Already Exist' });
+      return res.json({ error: 'User Already Exist' });
     }
     const hashedPass = await bcrypt.hash(password,10)
     const emp = new EmpData({
@@ -120,7 +119,7 @@ app.post('/addEmployee', async(req, res) => {
     return res.json({message:"user added",emp})
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 })
 
