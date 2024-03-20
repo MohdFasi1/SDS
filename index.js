@@ -66,8 +66,7 @@ app.put('/', async (req, res) => {
       total_time: timeDiff / (1000 * 60),
       notes: a.notes
     })
-    data.save()
-    res.json({ data, message: `Data Submitted Successfully` })
+    res.json({ data, message: `Data Edited Successfully` })
 
   } catch (err) {
     console.error(err)
