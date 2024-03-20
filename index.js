@@ -57,6 +57,8 @@ app.put('/', async (req, res) => {
     let timeDiff = time2 - time1
     const data = await Emp.updateOne({
       id: a.id,
+      _id: a._id},
+      {
       date: a.date,
       day: daysOfWeek[formDate.getDay()],
       time_in: a.time_in,
