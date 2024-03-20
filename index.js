@@ -10,48 +10,74 @@ import connectDB from "./connectMongo.js";
 const app = express()
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-  }
+  origin: 'http://localhost:5173',
+  credentials: true,
+}
 ));
 connectDB()
-app.post('/', async(req, res) => {
+app.post('/', async (req, res) => {
   try {
     let a = req.body;
-    const emp = await Emp.findOne({id:a.id,date:a.date})
-    if(emp){
-      res.json({message:`You have already submitted for ${a.date}`})
+    const emp = await Emp.findOne({ id: a.id, date: a.date })
+    if (emp) {
+      res.json({ message: `You have already submitted for ${a.date}` })
     }
-    else{
+    else {
       let date = a.date.split("-")
       let formDate = new Date(date[0], date[1] - 1, date[2])
+      var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      var time1 = new Date(formDate.toDateString() + " " + a.time_in)
+      var time2 = new Date(formDate.toDateString() + " " + a.time_out)
+      let timeDiff = time2 - time1
+      const data = new Emp({
+        id: a.id,
+        date: a.date,
+        day: daysOfWeek[formDate.getDay()],
+        time_in: a.time_in,
+        time_out: a.time_out,
+        total_time: timeDiff / (1000 * 60),
+        notes: a.notes
+      })
+      data.save()
+      res.json({ data, message: `Data Submitted Successfully` })
+    }
+  } catch (err) {
+    console.error(err)
+    res.json({ message: `There was an error while submiting data, Please Try again` })
+  }
+})
+app.put('/', async (req, res) => {
+  try {
+    let a = req.body;
+    let date = a.date.split("-")
+    let formDate = new Date(date[0], date[1] - 1, date[2])
     var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var time1 = new Date(formDate.toDateString() + " " + a.time_in)
     var time2 = new Date(formDate.toDateString() + " " + a.time_out)
     let timeDiff = time2 - time1
-    const data = new Emp({
-      id:a.id,
+    const data = await Emp.updateOne({
+      id: a.id,
       date: a.date,
       day: daysOfWeek[formDate.getDay()],
       time_in: a.time_in,
       time_out: a.time_out,
-      total_time: timeDiff/(1000*60),
+      total_time: timeDiff / (1000 * 60),
       notes: a.notes
     })
     data.save()
-    res.json({data,message:`Data Submitted Successfully`})
-  }
+    res.json({ data, message: `Data Submitted Successfully` })
+
   } catch (err) {
     console.error(err)
-    res.json({message:`There was an error while submiting data, Please Try again`})
+    res.json({ message: `There was an error while submiting data, Please Try again` })
   }
 })
-app.get('/employees', async(req, res) => {
-  const data =await EmpData.find()
+app.get('/employees', async (req, res) => {
+  const data = await EmpData.find()
   res.json(data)
 })
 
-app.post('/login', async(req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await EmpData.findOne({ email });
@@ -60,7 +86,7 @@ app.post('/login', async(req, res) => {
     }
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (passwordMatch) {
-      return res.json({ data:user });
+      return res.json({ data: user });
     } else {
       return res.json({ message: 'Invalid credentials' });
     }
@@ -88,19 +114,19 @@ app.get('/attendance/:id/:fromDate/:toDate', async (req, res) => {
 
 
 
-app.post('/employee', async(req, res) => {
+app.post('/employee', async (req, res) => {
   try {
     const { name, email, password, isAdmin } = req.body;
     const user = await EmpData.find({ email });
     if (user.length > 0) {
       return res.json({ error: 'User Already Exist' });
     }
-    const hashedPass = await bcrypt.hash(password,10)
+    const hashedPass = await bcrypt.hash(password, 10)
     const emp = new EmpData({
-      name,email,password:hashedPass,isAdmin
+      name, email, password: hashedPass, isAdmin
     })
     await emp.save()
-    return res.json({message:"user added",emp})
+    return res.json({ message: "user added", emp })
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
