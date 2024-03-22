@@ -104,8 +104,15 @@ app.get('/attendance/:id/:fromDate/:toDate', async (req, res) => {
       id: id,
       date: { $gte: fromDate, $lte: toDate }
     });
-    const dates = await Emp.distinct('date')
-    res.json(data,dates);
+    const distDates = await Emp.distinct('date',{
+      date: { $gte: fromDate, $lte: toDate }
+  })
+  const count = {
+    total:distDates.length,
+    present:data.length,
+    absent:distDates.length-data.length
+  }
+    res.json({data,count});
   } catch (error) {
     console.error('Error fetching attendance data:', error);
     res.status(500).json({ message: 'Internal server error' });
