@@ -55,9 +55,7 @@ app.put('/', async (req, res) => {
     var time1 = new Date(formDate.toDateString() + " " + a.time_in)
     var time2 = new Date(formDate.toDateString() + " " + a.time_out)
     let timeDiff = time2 - time1
-    const data = await Emp.updateOne({
-      id: a.id,
-      _id: a._id},
+    const data = await Emp.updateOne({_id: a._id},
       {
       date: a.date,
       day: daysOfWeek[formDate.getDay()],
@@ -106,7 +104,8 @@ app.get('/attendance/:id/:fromDate/:toDate', async (req, res) => {
       id: id,
       date: { $gte: fromDate, $lte: toDate }
     });
-    res.json(data);
+    const dates = await Emp.distinct('date')
+    res.json(data,dates);
   } catch (error) {
     console.error('Error fetching attendance data:', error);
     res.status(500).json({ message: 'Internal server error' });
