@@ -7,7 +7,7 @@ import { EmpData } from './models/login.js';
 import { config } from "dotenv";
 config()
 import connectDB from "./connectMongo.js";
-const app = express()
+const app = express();
 app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -138,6 +138,16 @@ app.post('/employee', async (req, res) => {
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
+})
+
+app.delete('/employee', async (req,res)=>{
+  let {_id}= req.body
+  EmpData.deleteOne({_id},(err) => {
+    if (err) {
+        res.json({message:"there was an error"})
+    } else {
+      res.json({message:'employee Removed Successfully'})
+    }})
 })
 
 const port = process.env.PORT
