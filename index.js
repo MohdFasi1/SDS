@@ -9,13 +9,11 @@ config()
 import connectDB from "./connectMongo.js";
 const app = express();
 app.use(express.json());
-const corsOptions = {
-  origin: 'http://localhost:5174',  // Set the correct frontend origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,  // If you're using cookies, sessions, etc.
-  allowedHeaders: 'Content-Type, Authorization',  // Add other headers if needed
-};
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  }
+));
 connectDB()
 app.post('/', async (req, res) => {
   try {
