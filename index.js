@@ -140,15 +140,20 @@ app.post('/employee', async (req, res) => {
   }
 })
 
-app.delete('/employee', async (req,res)=>{
-  let {_id}= req.body
-  EmpData.deleteOne({_id},(err) => {
-    if (err) {
-        res.json({message:"there was an error"})
+app.delete('/employee', async (req, res) => {
+  try {
+    const { _id } = req.body;
+    const result = await EmpData.deleteOne({ _id });
+    
+    if (result.deletedCount === 0) {
+      res.json({ message: "Employee not found" });
     } else {
-      res.json({message:'employee Removed Successfully'})
-    }})
-})
+      res.json({ message: 'Employee removed successfully' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: "There was an error" });
+  }
+});
 
 const port = process.env.PORT
 
