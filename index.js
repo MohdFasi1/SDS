@@ -144,7 +144,7 @@ app.delete('/employee', async (req, res) => {
   try {
     const { _id } = req.body;
     const result = await EmpData.deleteOne({ _id });
-    
+    console.log(result);
     if (result.deletedCount === 0) {
       res.json({ message: "Employee not found" });
     } else {
